@@ -8,7 +8,7 @@ using namespace std;
 
 // Guest struct -- pointer objects
 struct Guest {
-    int serial;
+    string serial;
     int grpSize;
     string table;
     bool isSeated;
@@ -62,7 +62,7 @@ const int getTotal() {
     int total;
     
     do {
-        cout << "\nManager: But first, please decide how many tables you want to set. (You need to have a minimum of 3 and a maximum of 10 tables for our guests)\nYou: ";
+        cout << "\nManager: But first, please decide how many tables you want to set. (You need to have at least 3 tables and can have at most 10 tables in the restaurant)\nYou: ";
         cin >> total;
         if (total < 3 || total > 10) cout << "System: Input not in range! Please enter a valid number!\n";
     } while (total < 3 || total > 10); // input verification
@@ -73,7 +73,7 @@ const int getTotal() {
 // setting up the Table objects preliminary data
 void setup(Table t[], int n) { // parameter: Table array, total number of tables
 
-    cout << "\nManager: Now you need to decide what are the sizes for each table going to be. (The least is 2 and the most is 8)\n";
+    cout << "\nManager: Now you need to decide what are the sizes for each table going to be. (Table sizes can range from a minimum of 2 seats to a maximum of 8 seats)\n";
    
     for (int i = 0; i < n; i++) {
 
@@ -99,8 +99,13 @@ void status(Table t[], int n) { // parameter: Table array, total number of table
     cout << "\nSystem: Here is the current status of the tables:\n";
     for (int i = 0; i < n; i++) {
         cout << t[i].name << ": ";
-        (t[i].occupied)? cout << "Occupied by customer no. " << t[i].currentGuest->serial << "\n" : 
-        cout << "Up to " << t[i].currentSize << " seats available\n";
+        if (t[i].occupied) {
+            cout << "Occupied by customer\n";
+            // cout << "Occupied by customer no. " << t[i].currentGuest->serial << "\n"; // too unstable -- doesn't work with all compilers (reason: most likely -> pointers)
+        }
+        else {
+            cout << "Up to " << t[i].currentSize << " seats available\n";
+        }
     }
 }
 
@@ -130,7 +135,6 @@ bool merge2Tables(Table t[], Guest* g, int n, int s) { // parameter: Table array
     while (i < n) {
         while (j < n) {
             if (s <= (t[i].currentSize + t[j].currentSize)) {
-                //break;
                 a[0] = i;
                 a[1] = j;
                 //cout << "i: " << i << " j: " << j << endl; // console log
@@ -193,14 +197,14 @@ void helpGuest(Table t[], int n) { // parameter: Table array, Guest pointer obje
     do { // customer entry loop
         if (c == 1) {
             Guest* newGuest = new Guest; // creating an empty customer object
-            newGuest->serial = i; // assigning customer ID
             int grp;
             do {
-                cout << "\nYou: Hi, welcome to our restaurant! May I know how many people are in your group?\nCustomer: ";
+                cout << "\nYou: Hi, welcome to our restaurant! May I know how many people are in your group?\nCustomer " << i << ": ";
                 cin >> grp;
                 if (grp <= 0) cout << "Please enter a valid group size!\n";
             } while (grp <= 0); // input verification
             newGuest->grpSize = grp;
+            newGuest->serial = to_string(i); // assigning customer ID
             waitingList(t, newGuest, n, grp); // assigning table algorithm
         }
         else cout << "\nYou: Thank you, have a good night!\n";
@@ -233,6 +237,6 @@ To do:
 - New algorithm idea(s): estimated wait time, customer review/rating
 
 Identified Bugs:
-- Status printing wrong serial number (frequency: rare)
+- Status printing wrong serial number (frequency: rare) -- currently turned off
 
 */
